@@ -1,4 +1,4 @@
-package com.ckgod.presentation.stock
+package com.ckgod.endpoint.stock
 
 import com.ckgod.config.KisMode
 import com.ckgod.domain.stock.StockService

@@ -1,7 +1,7 @@
 package com.ckgod
 
 import com.ckgod.domain.stock.StockService
-import com.ckgod.presentation.stock.stockRoutes
+import com.ckgod.endpoint.stock.stockRoutes
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 

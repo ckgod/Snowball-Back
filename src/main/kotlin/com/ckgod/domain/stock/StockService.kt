@@ -2,7 +2,7 @@ package com.ckgod.domain.stock
 
 import com.ckgod.config.KisMode
 import com.ckgod.infrastructure.kis.api.KisStockApi
-import com.ckgod.presentation.dto.StockPriceResponse
+import com.ckgod.endpoint.dto.StockPriceResponse
 
 class StockService(
     private val realStockApi: KisStockApi,
