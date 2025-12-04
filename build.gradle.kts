@@ -1,10 +1,7 @@
-val kotlin_version: String by project
-val logback_version: String by project
-
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("io.ktor.plugin") version "3.3.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "com.ckgod"
@@ -15,18 +12,23 @@ application {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-config-yaml")
-    implementation("io.ktor:ktor-client-okhttp-jvm:3.3.2")
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    // Ktor Server (using bundle)
+    implementation(libs.bundles.ktor.server)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-client-logging")
+    // Ktor Client (using bundle)
+    implementation(libs.bundles.ktor.client)
+
+    // Logging
+    implementation(libs.logback.classic)
+
+    // Database - Exposed (using bundle)
+    implementation(libs.bundles.exposed)
+
+    // Database - H2
+    implementation(libs.h2.database)
+
+    // Testing
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.kotlin.test.junit)
 }
