@@ -1,6 +1,8 @@
 package com.ckgod
 
 import com.ckgod.config.KisConfig
+import com.ckgod.config.KisMode
+import com.ckgod.database.DatabaseFactory
 import com.ckgod.domain.stock.StockService
 import com.ckgod.infrastructure.kis.KisApiClient
 import com.ckgod.infrastructure.kis.KisAuthService
@@ -16,10 +18,12 @@ import io.ktor.server.netty.*
 import kotlinx.serialization.json.Json
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
+    embeddedServer(factory = Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
 fun Application.module() {
+    DatabaseFactory.init()
+
     val config = environment.config
 
     val httpClient = HttpClient(CIO) {
@@ -33,6 +37,7 @@ fun Application.module() {
     }
 
     val realConfig = KisConfig(
+        key = KisMode.REAL.toString(),
         baseUrl = config.property("kis.real.baseUrl").getString().trim(),
         appKey = config.property("kis.real.appKey").getString().trim(),
         appSecret = config.property("kis.real.appSecret").getString().trim(),
@@ -40,6 +45,7 @@ fun Application.module() {
     )
 
     val mockConfig = KisConfig(
+        key = KisMode.MOCK.toString(),
         baseUrl = config.property("kis.mock.baseUrl").getString().trim(),
         appKey = config.property("kis.mock.appKey").getString().trim(),
         appSecret = config.property("kis.mock.appSecret").getString().trim(),

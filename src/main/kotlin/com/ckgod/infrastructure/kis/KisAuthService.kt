@@ -1,6 +1,7 @@
 package com.ckgod.infrastructure.kis
 
 import com.ckgod.config.KisConfig
+import com.ckgod.database.auth.AuthTokenRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -13,7 +14,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class KisAuthService(
@@ -21,9 +21,22 @@ class KisAuthService(
     private val client: HttpClient
 ) {
     private var accessToken: String? = null
-    private var tokenExpiryTime: Long = 0
+    private var tokenExpiryTime: LocalDateTime? = null
 
     private val mutex = Mutex()
+
+    init {
+        val savedToken = AuthTokenRepository.getToken(config.key)
+        if (savedToken != null && savedToken.expireAt.isAfter(LocalDateTime.now())) {
+            accessToken = savedToken.accessToken
+            tokenExpiryTime = savedToken.expireAt
+
+            val remainingSeconds = java.time.Duration.between(LocalDateTime.now(), tokenExpiryTime).seconds
+            println("[${config.key}] DB에서 기존 토큰 로드 완료 (남은 시간: ${remainingSeconds}초)")
+        } else if (savedToken != null) {
+            println("[${config.key}] DB에 저장된 토큰이 만료되었습니다. 새로 발급이 필요합니다.")
+        }
+    }
 
     suspend fun getAccessToken(): String {
         if (isValidToken()) return accessToken!!
@@ -36,9 +49,10 @@ class KisAuthService(
     }
 
     private fun isValidToken(): Boolean {
-        val currentTime = System.currentTimeMillis()
+        val expiryTime = tokenExpiryTime ?: return false
+        val bufferTime = LocalDateTime.now().plusSeconds(60)
 
-        return accessToken != null && currentTime < tokenExpiryTime - 60_000
+        return accessToken != null && bufferTime.isBefore(expiryTime)
     }
 
     private suspend fun refreshToken(): String {
@@ -56,22 +70,28 @@ class KisAuthService(
             ?: throw IllegalStateException("token api error: ${jsonBody["msg1"]?.jsonPrimitive?.content}")
 
         val expiredStr = jsonBody["access_token_token_expired"]?.jsonPrimitive?.content
-        tokenExpiryTime = if (expiredStr != null) {
+        tokenExpiryTime = parseExpiryTime(expiredStr)
+
+        val remainingSeconds = java.time.Duration.between(LocalDateTime.now(), tokenExpiryTime).seconds
+        println("[${config.key}] success refresh token (expires at: $expiredStr, remaining: ${remainingSeconds}s)")
+
+        AuthTokenRepository.saveToken(config.key, accessToken!!, tokenExpiryTime!!)
+        println("[${config.key}] 토큰이 DB에 저장되었습니다.")
+
+        return accessToken!!
+    }
+
+    private fun parseExpiryTime(expiredStr: String?): LocalDateTime {
+        return if (expiredStr != null) {
             try {
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                val expiredDateTime = LocalDateTime.parse(expiredStr, formatter)
-                expiredDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                LocalDateTime.parse(expiredStr, formatter)
             } catch (_: Exception) {
-                println("만료 시간 파싱 실패: $expiredStr, 기본값(24시간) 사용")
-                System.currentTimeMillis() + (86400 * 1000)
+                println("[${config.key}] 만료 시간 파싱 실패: $expiredStr, 기본값(24시간) 사용")
+                LocalDateTime.now().plusDays(1)
             }
         } else {
-            System.currentTimeMillis() + (86400 * 1000)
+            LocalDateTime.now().plusDays(1)
         }
-
-        val remainingSeconds = (tokenExpiryTime - System.currentTimeMillis()) / 1000
-        println("success refresh token (expires at: $expiredStr, remaining: ${remainingSeconds}s)")
-        println("token: $accessToken")
-        return accessToken!!
     }
 }
