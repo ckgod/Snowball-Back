@@ -37,3 +37,6 @@ out/
 
 .env
 /data/
+*/data/
+/.env.example
+/application/data/

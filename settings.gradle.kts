@@ -5,3 +5,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+include(":common")
+include(":domain")
+include(":infrastructure")
+include(":application")

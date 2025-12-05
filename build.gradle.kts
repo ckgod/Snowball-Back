@@ -1,34 +1,13 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.ktor) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }
 
 group = "com.ckgod"
 version = "0.0.1"
 
-application {
-    mainClass = "com.ckgod.ApplicationKt"
-}
-
-dependencies {
-    // Ktor Server (using bundle)
-    implementation(libs.bundles.ktor.server)
-    implementation(libs.ktor.serialization.kotlinx.json)
-
-    // Ktor Client (using bundle)
-    implementation(libs.bundles.ktor.client)
-
-    // Logging
-    implementation(libs.logback.classic)
-
-    // Database - Exposed (using bundle)
-    implementation(libs.bundles.exposed)
-
-    // Database - H2
-    implementation(libs.h2.database)
-
-    // Testing
-    testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.junit)
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
 }
