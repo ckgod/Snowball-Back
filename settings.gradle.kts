@@ -6,7 +6,7 @@ dependencyResolutionManagement {
     }
 }
 
-include(":common")
 include(":domain")
-include(":infrastructure")
+include(":data")
+include(":presentation")
 include(":application")

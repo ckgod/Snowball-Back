@@ -1,10 +1,12 @@
 package com.ckgod
 
-import com.ckgod.config.KisConfig
-import com.ckgod.config.KisMode
+import com.ckgod.data.config.KisConfig
+import com.ckgod.data.config.KisMode
+import com.ckgod.data.repository.KisStockPriceRepository
 import com.ckgod.database.DatabaseFactory
 import com.ckgod.database.auth.AuthTokenRepositoryImpl
 import com.ckgod.database.stocks.StockRepositoryImpl
+import com.ckgod.domain.usecase.GetStockPriceUseCase
 import com.ckgod.infrastructure.kis.KisApiClient
 import com.ckgod.infrastructure.kis.KisAuthService
 import com.ckgod.infrastructure.kis.api.KisStockApi
@@ -12,7 +14,8 @@ import com.ckgod.infrastructure.kis.stock.StockCodeSyncService
 import com.ckgod.infrastructure.kis.stock.downloader.StockCodeDownloader
 import com.ckgod.infrastructure.scheduler.QuartzSchedulerManager
 import com.ckgod.infrastructure.scheduler.job.KospiSyncJob
-import com.ckgod.service.StockService
+import com.ckgod.presentation.config.configureSerialization
+import com.ckgod.presentation.routing.configureRouting
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -42,6 +45,7 @@ fun Application.mainModule() {
 }
 
 fun Application.module() {
+    // ========== Infrastructure Setup ==========
     DatabaseFactory.init()
 
     val config = environment.config
@@ -56,6 +60,7 @@ fun Application.module() {
         }
     }
 
+    // ========== Configuration ==========
     val realConfig = KisConfig(
         mode = KisMode.REAL,
         baseUrl = config.property("kis.real.baseUrl").getString().trim(),
@@ -72,6 +77,7 @@ fun Application.module() {
         accountNo = config.property("kis.mock.accountNo").getString().trim(),
     )
 
+    // ========== Data Layer (Repositories) ==========
     val authTokenRepository = AuthTokenRepositoryImpl()
 
     val realAuthService = KisAuthService(realConfig, httpClient, authTokenRepository)
@@ -83,17 +89,24 @@ fun Application.module() {
     val realStockApi = KisStockApi(realApiClient)
     val mockStockApi = KisStockApi(mockApiClient)
 
-    val stockService = StockService(realStockApi, mockStockApi)
-    
+    val realStockPriceRepository = KisStockPriceRepository(realStockApi)
+    val mockStockPriceRepository = KisStockPriceRepository(mockStockApi)
+
     val stockRepository = StockRepositoryImpl()
+
+    // ========== Domain Layer (Use Cases) ==========
+    val getStockPriceUseCase = GetStockPriceUseCase(realStockPriceRepository, mockStockPriceRepository)
+
+    // ========== Background Jobs ==========
     val stockCodeDownloader = StockCodeDownloader(httpClient)
     val stockCodeSyncService = StockCodeSyncService(
         stockRepository = stockRepository,
         downloader = stockCodeDownloader,
         kospiMasterUrl = "https://new.real.download.dws.co.kr/common/master/kospi_code.mst.zip",
-        outputDir = File("data/stocks")
+        outputDir = File("database/stocks")
     )
 
+    // Initial sync if database is empty
     if (stockRepository.isEmpty()) {
         println("KospiStocks 테이블이 비어있습니다. 초기 동기화를 시작합니다...")
         launch {
@@ -109,6 +122,7 @@ fun Application.module() {
         println("KospiStocks 테이블에 데이터가 존재합니다. 초기 동기화를 건너뜁니다.")
     }
 
+    // Schedule periodic sync
     QuartzSchedulerManager.scheduleJob(
         jobClass = KospiSyncJob::class.java,
         jobName = "KospiSync",
@@ -118,6 +132,7 @@ fun Application.module() {
     )
     QuartzSchedulerManager.start()
 
+    // ========== Presentation Layer Setup ==========
     configureSerialization()
-    configureRouting(stockService)
+    configureRouting(getStockPriceUseCase)
 }

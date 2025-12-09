@@ -9,9 +9,9 @@ application {
 }
 
 dependencies {
-    implementation(project(":common"))
     implementation(project(":domain"))
-    implementation(project(":infrastructure"))
+    implementation(project(":data"))
+    implementation(project(":presentation"))
 
     implementation(libs.bundles.ktor.server)
     implementation(libs.ktor.serialization.kotlinx.json)
