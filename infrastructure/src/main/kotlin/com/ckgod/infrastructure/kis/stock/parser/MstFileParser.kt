@@ -1,4 +1,4 @@
-package com.ckgod.infrastructure.stock.parser
+package com.ckgod.infrastructure.kis.stock.parser
 
 import com.ckgod.domain.stock.Stock
 import java.io.BufferedReader

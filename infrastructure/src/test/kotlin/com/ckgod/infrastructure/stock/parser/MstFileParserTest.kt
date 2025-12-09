@@ -1,5 +1,6 @@
 package com.ckgod.infrastructure.stock.parser
 
+import com.ckgod.infrastructure.kis.stock.parser.MstFileParser
 import org.junit.Test
 import java.io.File
 
