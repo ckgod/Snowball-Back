@@ -18,5 +18,11 @@ object KospiStocks : Table("kospi_stocks") {
 
     val marketWarning = varchar("market_warning", 2)
 
+    val currentPrice = long("current_price").nullable()
+    val changeRate = varchar("change_rate", 100).nullable()
+    val accumulatedVolume = long("accumulated_volume").nullable()
+    val changeAmount = long("change_amount").nullable()
+    val changeState = varchar("change_state", 4).nullable()
+
     override val primaryKey = PrimaryKey(shortCode)
 }

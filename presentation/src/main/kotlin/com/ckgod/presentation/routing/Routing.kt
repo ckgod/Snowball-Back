@@ -1,11 +1,11 @@
 package com.ckgod.presentation.routing
 
-import com.ckgod.domain.usecase.GetStockPriceUseCase
+import com.ckgod.domain.usecase.GetStockUseCase
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
-fun Application.configureRouting(getStockPriceUseCase: GetStockPriceUseCase) {
+fun Application.configureRouting(getStockUseCase: GetStockUseCase) {
     routing {
-        stockRoutes(getStockPriceUseCase)
+        stockRoutes(getStockUseCase)
     }
 }

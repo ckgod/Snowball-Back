@@ -3,8 +3,8 @@ package com.ckgod.database
 import com.ckgod.database.auth.AuthTokens
 import com.ckgod.database.stocks.KospiStocks
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import java.io.File
 
 object DatabaseFactory {
@@ -23,8 +23,17 @@ object DatabaseFactory {
         Database.connect(jdbcUrl, driverClassName)
 
         transaction {
-            SchemaUtils.create(AuthTokens)
-            SchemaUtils.create(KospiStocks)
+            val statements = MigrationUtils.statementsRequiredForDatabaseMigration(AuthTokens, KospiStocks)
+            if (statements.isNotEmpty()) {
+                println("Database migration required. Executing ${statements.size} statement(s)...")
+                statements.forEach { statement ->
+                    println("  Executing: $statement")
+                    exec(statement)
+                }
+                println("Database migration completed successfully")
+            } else {
+                println("No database migration required")
+            }
         }
 
         initialized = true

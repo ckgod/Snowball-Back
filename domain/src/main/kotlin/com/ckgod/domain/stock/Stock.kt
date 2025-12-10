@@ -60,4 +60,10 @@ data class Stock(
      * (00: 정상, 01: 주의, 02: 투자경고, 03: 투자위험)
      */
     val marketWarning: String,
+
+    val currentPrice: Long? = null,
+    val changeRate: String? = null,
+    val accumulatedVolume: Long? = null,
+    val changeAmount: Long? = null,
+    val changeState: String? = null
 )

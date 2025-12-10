@@ -3,10 +3,9 @@ package com.ckgod
 import com.ckgod.database.auth.AuthTokenRepository
 import com.ckgod.kis.config.KisConfig
 import com.ckgod.kis.config.KisMode
-import com.ckgod.kis.stock.repository.KisStockPriceRepository
 import com.ckgod.database.DatabaseFactory
-import com.ckgod.database.stocks.StockRepositoryImpl
-import com.ckgod.domain.usecase.GetStockPriceUseCase
+import com.ckgod.kis.stock.repository.StockRepositoryImpl
+import com.ckgod.domain.usecase.GetStockUseCase
 import com.ckgod.kis.KisApiClient
 import com.ckgod.kis.auth.KisAuthService
 import com.ckgod.kis.stock.api.KisStockApi
@@ -88,25 +87,23 @@ fun Application.module() {
     val realStockApi = KisStockApi(realApiClient)
     val mockStockApi = KisStockApi(mockApiClient)
 
-    val realStockPriceRepository = KisStockPriceRepository(realStockApi)
-    val mockStockPriceRepository = KisStockPriceRepository(mockStockApi)
-
-    val stockRepository = StockRepositoryImpl()
+    val realStockRepository = StockRepositoryImpl(realStockApi)
+    val mockStockRepository = StockRepositoryImpl(mockStockApi)
 
     // ========== Domain Layer (Use Cases) ==========
-    val getStockPriceUseCase = GetStockPriceUseCase(realStockPriceRepository, mockStockPriceRepository)
+    val getStockUseCase = GetStockUseCase(realStockRepository, mockStockRepository)
 
     // ========== Background Jobs ==========
     val mstFileDownloader = MstFileDownloader(httpClient)
     val mstFileSyncService = MstFileSyncService(
-        stockRepository = stockRepository,
+        stockRepository = realStockRepository,
         downloader = mstFileDownloader,
         kospiMasterUrl = "https://new.real.download.dws.co.kr/common/master/kospi_code.mst.zip",
         outputDir = File("database/stocks")
     )
 
     // Initial sync if database is empty
-    if (stockRepository.isEmpty()) {
+    if (realStockRepository.isEmpty()) {
         println("KospiStocks 테이블이 비어있습니다. 초기 동기화를 시작합니다...")
         launch {
             try {
@@ -133,5 +130,5 @@ fun Application.module() {
 
     // ========== Presentation Layer Setup ==========
     configureSerialization()
-    configureRouting(getStockPriceUseCase)
+    configureRouting(getStockUseCase)
 }
