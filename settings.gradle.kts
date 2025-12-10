@@ -7,6 +7,7 @@ dependencyResolutionManagement {
 }
 
 include(":domain")
-include(":data")
+include(":infrastructure:database")
+include(":infrastructure:kis-api")
 include(":presentation")
 include(":application")

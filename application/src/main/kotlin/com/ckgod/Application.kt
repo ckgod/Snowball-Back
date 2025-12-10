@@ -1,19 +1,18 @@
 package com.ckgod
 
-import com.ckgod.data.auth.AuthTokenRepository
-import com.ckgod.data.config.KisConfig
-import com.ckgod.data.config.KisMode
-import com.ckgod.data.repository.KisStockPriceRepository
+import com.ckgod.database.auth.AuthTokenRepository
+import com.ckgod.kis.config.KisConfig
+import com.ckgod.kis.config.KisMode
+import com.ckgod.kis.stock.repository.KisStockPriceRepository
 import com.ckgod.database.DatabaseFactory
 import com.ckgod.database.stocks.StockRepositoryImpl
 import com.ckgod.domain.usecase.GetStockPriceUseCase
-import com.ckgod.infrastructure.kis.KisApiClient
-import com.ckgod.infrastructure.kis.KisAuthService
-import com.ckgod.infrastructure.kis.api.KisStockApi
-import com.ckgod.infrastructure.kis.stock.StockCodeSyncService
-import com.ckgod.infrastructure.kis.stock.downloader.StockCodeDownloader
-import com.ckgod.infrastructure.scheduler.QuartzSchedulerManager
-import com.ckgod.infrastructure.scheduler.job.KospiSyncJob
+import com.ckgod.kis.KisApiClient
+import com.ckgod.kis.auth.KisAuthService
+import com.ckgod.kis.stock.api.KisStockApi
+import com.ckgod.kis.master.MstFileSyncService
+import com.ckgod.kis.master.MstFileDownloader
+import com.ckgod.kis.master.job.KospiSyncJob
 import com.ckgod.presentation.config.configureSerialization
 import com.ckgod.presentation.routing.configureRouting
 import io.ktor.client.*
@@ -98,10 +97,10 @@ fun Application.module() {
     val getStockPriceUseCase = GetStockPriceUseCase(realStockPriceRepository, mockStockPriceRepository)
 
     // ========== Background Jobs ==========
-    val stockCodeDownloader = StockCodeDownloader(httpClient)
-    val stockCodeSyncService = StockCodeSyncService(
+    val mstFileDownloader = MstFileDownloader(httpClient)
+    val mstFileSyncService = MstFileSyncService(
         stockRepository = stockRepository,
-        downloader = stockCodeDownloader,
+        downloader = mstFileDownloader,
         kospiMasterUrl = "https://new.real.download.dws.co.kr/common/master/kospi_code.mst.zip",
         outputDir = File("database/stocks")
     )
@@ -111,7 +110,7 @@ fun Application.module() {
         println("KospiStocks 테이블이 비어있습니다. 초기 동기화를 시작합니다...")
         launch {
             try {
-                stockCodeSyncService.syncKospiStocks()
+                mstFileSyncService.syncKospiStocks()
                 println("초기 동기화가 완료되었습니다.")
             } catch (e: Exception) {
                 println("초기 동기화 실패: ${e.message}")
@@ -128,7 +127,7 @@ fun Application.module() {
         jobName = "KospiSync",
         groupName = "StockSync",
         cronExpression = "0 0 7 ? * MON-FRI", // Weekdays at 07:00 AM
-        jobData = mapOf("syncService" to stockCodeSyncService)
+        jobData = mapOf("syncService" to mstFileSyncService)
     )
     QuartzSchedulerManager.start()
 

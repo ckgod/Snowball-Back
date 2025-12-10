@@ -10,7 +10,8 @@ application {
 
 dependencies {
     implementation(project(":domain"))
-    implementation(project(":data"))
+    implementation(project(":infrastructure:database"))
+    implementation(project(":infrastructure:kis-api"))
     implementation(project(":presentation"))
 
     implementation(libs.bundles.ktor.server)
