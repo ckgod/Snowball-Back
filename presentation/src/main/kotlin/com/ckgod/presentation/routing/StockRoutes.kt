@@ -1,7 +1,6 @@
 package com.ckgod.presentation.routing
 
 import com.ckgod.domain.usecase.GetCurrentPriceUseCase
-import com.ckgod.presentation.dto.StockResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

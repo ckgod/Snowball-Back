@@ -1,7 +1,7 @@
 package com.ckgod.kis.stock.response
 
-import com.ckgod.domain.price.MarketPrice
-import com.ckgod.domain.price.PriceStatus
+import com.ckgod.domain.model.MarketPrice
+import com.ckgod.domain.model.PriceStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -1,7 +1,6 @@
 package com.ckgod.database
 
 import com.ckgod.database.auth.AuthTokens
-import com.ckgod.database.stocks.KospiStocks
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
@@ -23,7 +22,7 @@ object DatabaseFactory {
         Database.connect(jdbcUrl, driverClassName)
 
         transaction {
-            val statements = MigrationUtils.statementsRequiredForDatabaseMigration(AuthTokens, KospiStocks)
+            val statements = MigrationUtils.statementsRequiredForDatabaseMigration(AuthTokens)
             if (statements.isNotEmpty()) {
                 println("Database migration required. Executing ${statements.size} statement(s)...")
                 statements.forEach { statement ->

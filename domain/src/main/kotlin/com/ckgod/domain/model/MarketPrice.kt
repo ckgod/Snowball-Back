@@ -1,4 +1,4 @@
-package com.ckgod.domain.price
+package com.ckgod.domain.model
 
 import kotlinx.serialization.Serializable
 

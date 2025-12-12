@@ -1,7 +1,7 @@
 package com.ckgod.domain.usecase
 
-import com.ckgod.domain.price.MarketPrice
-import com.ckgod.domain.stock.StockRepository
+import com.ckgod.domain.model.MarketPrice
+import com.ckgod.domain.repository.StockRepository
 
 class GetCurrentPriceUseCase(
     private val repository: StockRepository,
