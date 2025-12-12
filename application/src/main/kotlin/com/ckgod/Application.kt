@@ -2,12 +2,14 @@ package com.ckgod
 
 import com.ckgod.database.DatabaseFactory
 import com.ckgod.database.auth.AuthTokenRepository
+import com.ckgod.domain.usecase.GetAccountStatusUseCase
 import com.ckgod.domain.usecase.GetCurrentPriceUseCase
 import com.ckgod.kis.KisApiClient
 import com.ckgod.kis.auth.KisAuthService
 import com.ckgod.kis.config.KisConfig
 import com.ckgod.kis.config.KisMode
-import com.ckgod.kis.stock.api.KisStockApi
+import com.ckgod.kis.stock.api.KisApiService
+import com.ckgod.kis.stock.repository.AccountRepositoryImpl
 import com.ckgod.kis.stock.repository.StockRepositoryImpl
 import com.ckgod.presentation.config.configureAuthPlugin
 import com.ckgod.presentation.config.configureRateLimiter
@@ -63,6 +65,7 @@ fun Application.module() {
         appKey = config.property("kis.real.appKey").getString().trim(),
         appSecret = config.property("kis.real.appSecret").getString().trim(),
         accountNo = config.property("kis.real.accountNo").getString().trim(),
+        accountCode = config.property("kis.real.accountCode").getString().trim(),
     )
 
     val mockConfig = KisConfig(
@@ -71,6 +74,7 @@ fun Application.module() {
         appKey = config.property("kis.mock.appKey").getString().trim(),
         appSecret = config.property("kis.mock.appSecret").getString().trim(),
         accountNo = config.property("kis.mock.accountNo").getString().trim(),
+        accountCode = config.property("kis.mock.accountCode").getString().trim(),
     )
 
     // ========== Data Layer (Repositories) ==========
@@ -82,19 +86,26 @@ fun Application.module() {
     val realApiClient = KisApiClient(realConfig, realAuthService, httpClient)
     val mockApiClient = KisApiClient(mockConfig, mockAuthService, httpClient)
 
-    val realStockApi = KisStockApi(realApiClient)
-    val mockStockApi = KisStockApi(mockApiClient)
+    val realApiService = KisApiService(realApiClient)
+    val mockApiService = KisApiService(mockApiClient)
 
-    val realStockRepository = StockRepositoryImpl(realStockApi)
-    val mockStockRepository = StockRepositoryImpl(mockStockApi)
+    val realStockRepository = StockRepositoryImpl(realApiService)
+    val mockStockRepository = StockRepositoryImpl(mockApiService)
+    val realAccountRepository = AccountRepositoryImpl(realApiService)
+    val mockAccountRepository = AccountRepositoryImpl(mockApiService)
 
     // ========== Domain Layer (Use Cases) ==========
     val getCurrentPriceUseCase = GetCurrentPriceUseCase(realStockRepository)
+    val getAccountStatusUseCase = GetAccountStatusUseCase(realAccountRepository, mockAccountRepository)
 
     // ========== Presentation Layer Setup ==========
     configureAuthPlugin(apiKey)
     configureRateLimiter(maxRequests, windowSeconds)
 
     configureSerialization()
-    configureRouting(getCurrentPriceUseCase, kisUserId)
+    configureRouting(
+        userId = kisUserId,
+        getCurrentPriceUseCase = getCurrentPriceUseCase,
+        getAccountStatusUseCase = getAccountStatusUseCase,
+    )
 }

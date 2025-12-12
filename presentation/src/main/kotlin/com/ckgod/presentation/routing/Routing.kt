@@ -1,14 +1,17 @@
 package com.ckgod.presentation.routing
 
+import com.ckgod.domain.usecase.GetAccountStatusUseCase
 import com.ckgod.domain.usecase.GetCurrentPriceUseCase
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(
+    userId: String,
     getCurrentPriceUseCase: GetCurrentPriceUseCase,
-    userId: String
+    getAccountStatusUseCase: GetAccountStatusUseCase
 ) {
     routing {
-        stockRoutes(getCurrentPriceUseCase, userId)
+        stockRoutes(userId, getCurrentPriceUseCase)
+        accountRoutes(getAccountStatusUseCase)
     }
 }

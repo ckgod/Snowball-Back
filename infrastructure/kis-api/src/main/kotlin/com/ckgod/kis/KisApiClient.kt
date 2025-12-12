@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
 class KisApiClient(
-    private val config: KisConfig,
+    val config: KisConfig,
     private val authService: KisAuthService,
     private val client: HttpClient
 ) {

@@ -47,12 +47,34 @@ sealed class KisApiSpec(
     ) {
         fun buildQuery(
             userId: String,
-            exchange: String = "NAS",
+            exchange: String,
             stockCode: String
         ): Map<String, String> = mapOf(
             "AUTH" to userId,
             "EXCD" to exchange,
             "SYMB" to stockCode
+        )
+    }
+
+    data object InquireBalance : KisApiSpec(
+        method = HttpMethod.Get,
+        path = "/uapi/overseas-stock/v1/trading/inquire-balance",
+        realTrId = "TTTS3012R",
+        mockTrId = "VTTS3012R",
+        description = "해외주식 잔고 조회"
+    ) {
+        fun buildQuery(
+            accountNo: String,
+            accountCode: String,
+            exchange: String = "NASD",
+            currency: String = "USD"
+        ): Map<String, String> = mapOf(
+            "CANO" to accountNo,
+            "ACNT_PRDT_CD" to accountCode,
+            "OVRS_EXCG_CD" to exchange,
+            "TR_CRCY_CD" to currency,
+            "CTX_AREA_FK200" to "",
+            "CTX_AREA_NK200" to ""
         )
     }
 

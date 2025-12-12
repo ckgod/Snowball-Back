@@ -5,5 +5,6 @@ data class KisConfig(
     val baseUrl: String,
     val appKey: String,
     val appSecret: String,
-    val accountNo: String
+    val accountNo: String,
+    val accountCode: String
 )

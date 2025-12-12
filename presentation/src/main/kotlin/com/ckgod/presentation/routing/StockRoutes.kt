@@ -6,12 +6,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.stockRoutes(
-    getCurrentPriceUseCase: GetCurrentPriceUseCase,
-    userId: String
+    userId: String,
+    getCurrentPriceUseCase: GetCurrentPriceUseCase
 ) {
     route("/oversea/nas/price") {
         /**
-         * GET /oversea/nas/price?code=TQQQ
+         * GET /oversea/nas/price?exchange=NAS&code=TQQQ
          */
         get {
             val code = call.request.queryParameters["code"]
@@ -20,8 +20,14 @@ fun Route.stockRoutes(
                     mapOf("error" to "종목 코드가 필요합니다")
                 )
 
+            val exchange = call.request.queryParameters["exchange"]
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "거래소코드가 필요합니다.")
+                )
+
             try {
-                val marketPrice = getCurrentPriceUseCase(userId, code)
+                val marketPrice = getCurrentPriceUseCase(userId, exchange, code)
                     ?: return@get call.respond(
                         HttpStatusCode.NotFound,
                         mapOf("error" to "존재하지 않는 종목 코드입니다")
