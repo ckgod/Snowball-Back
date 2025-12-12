@@ -1,7 +1,8 @@
 package com.ckgod.kis.stock.repository
 
 import com.ckgod.database.stocks.KospiStocks
-import com.ckgod.domain.model.StockPrice
+import com.ckgod.domain.price.MarketPrice
+import com.ckgod.domain.price.StockPrice
 import com.ckgod.domain.stock.Stock
 import com.ckgod.domain.stock.StockRepository
 import com.ckgod.kis.stock.api.KisStockApi
@@ -65,17 +66,10 @@ class StockRepositoryImpl(private val kisStockApi: KisStockApi) : StockRepositor
         KospiStocks.selectAll().count() == 0L
     }
 
-    override suspend fun getStockPrice(stockCode: String): StockPrice {
-        val kisData = kisStockApi.getStockPrice(stockCode)
+    override suspend fun getStockPrice(userId: String, stockCode: String): MarketPrice? {
+        val kisData = kisStockApi.getMarketCurrentPrice(userId, stockCode)
 
-        return StockPrice(
-            code = stockCode,
-            currentPrice = kisData.stckPrpr,
-            changeRate = kisData.prdyCtrt,
-            accumulatedVolume = kisData.acmlVol.toLong(),
-            changeState = kisData.prdyVrssSign,
-            changeAmount = kisData.prdyVrss.toLong()
-        )
+        return kisData.output?.toDomain()
     }
 
     override suspend fun updateStock(stockPrice: StockPrice): Unit = transaction {

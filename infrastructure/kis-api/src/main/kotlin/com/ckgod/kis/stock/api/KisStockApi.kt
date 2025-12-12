@@ -2,22 +2,23 @@ package com.ckgod.kis.stock.api
 
 import com.ckgod.kis.KisApiClient
 import com.ckgod.kis.spec.KisApiSpec
-import com.ckgod.kis.stock.response.KisStockPriceResponse
+import com.ckgod.kis.stock.response.KisPriceResponse
 
 class KisStockApi(private val apiClient: KisApiClient) {
 
-    suspend fun getStockPrice(
+    suspend fun getMarketCurrentPrice(
+        userId: String,
         stockCode: String,
-        marketDivCode: String = "J"
-    ): KisStockPriceResponse {
-        val spec = KisApiSpec.InquirePrice
-        val queryParams = spec.buildQuery(stockCode, marketDivCode)
+    ): KisPriceResponse {
+        val spec = KisApiSpec.QuotationPriceDetail
+        val queryParams = spec.buildQuery(
+            userId = userId,
+            stockCode = stockCode
+        )
 
-        val response = apiClient.request(
+        return apiClient.request(
             spec = spec,
             queryParams = queryParams
         )
-
-        return KisStockPriceResponse.from(response)
     }
 }

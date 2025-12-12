@@ -5,7 +5,7 @@ import com.ckgod.kis.config.KisConfig
 import com.ckgod.kis.config.KisMode
 import com.ckgod.database.DatabaseFactory
 import com.ckgod.kis.stock.repository.StockRepositoryImpl
-import com.ckgod.domain.usecase.GetStockUseCase
+import com.ckgod.domain.usecase.GetCurrentPriceUseCase
 import com.ckgod.kis.KisApiClient
 import com.ckgod.kis.auth.KisAuthService
 import com.ckgod.kis.stock.api.KisStockApi
@@ -51,7 +51,7 @@ fun Application.module() {
     val httpClient = HttpClient(CIO) {
         install(Logging) {
             logger = Logger.SIMPLE
-            level = LogLevel.INFO
+            level = LogLevel.BODY
         }
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
@@ -91,7 +91,7 @@ fun Application.module() {
     val mockStockRepository = StockRepositoryImpl(mockStockApi)
 
     // ========== Domain Layer (Use Cases) ==========
-    val getStockUseCase = GetStockUseCase(realStockRepository, mockStockRepository)
+    val getCurrentPriceUseCase = GetCurrentPriceUseCase(realStockRepository)
 
     // ========== Background Jobs ==========
     val mstFileDownloader = MstFileDownloader(httpClient)
@@ -130,5 +130,5 @@ fun Application.module() {
 
     // ========== Presentation Layer Setup ==========
     configureSerialization()
-    configureRouting(getStockUseCase)
+    configureRouting(getCurrentPriceUseCase)
 }

@@ -16,11 +16,15 @@ class KisApiClient(
     private val authService: KisAuthService,
     private val client: HttpClient
 ) {
-    suspend fun request(
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
+    internal suspend inline fun <reified T> request(
         spec: KisApiSpec,
         queryParams: Map<String, String> = emptyMap(),
         bodyParams: Map<String, String> = emptyMap()
-    ): JsonObject {
+    ): T {
         val token = authService.getAccessToken()
         val url = "${config.baseUrl}${spec.path}"
         val trId = spec.getTrId(config.mode)
@@ -38,7 +42,7 @@ class KisApiClient(
             else -> throw KisApiException("Unsupported HTTP method: ${spec.method}")
         }
 
-        return parseResponse(response)
+        return json.decodeFromString<T>(response.bodyAsText())
     }
 
     suspend fun get(
@@ -84,8 +88,7 @@ class KisApiClient(
     }
 
     private suspend fun parseResponse(response: HttpResponse): JsonObject {
-        val fullResponse = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        return fullResponse["output"]?.jsonObject ?: JsonObject(emptyMap())
+        return Json.parseToJsonElement(response.bodyAsText()).jsonObject
     }
 }
 

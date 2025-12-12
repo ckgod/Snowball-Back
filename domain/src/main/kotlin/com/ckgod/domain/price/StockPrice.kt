@@ -1,4 +1,4 @@
-package com.ckgod.domain.model
+package com.ckgod.domain.price
 
 data class StockPrice(
     val code: String,
