@@ -10,3 +10,10 @@ dependencies {
 
     testImplementation(libs.kotlin.test.junit)
 }
+
+tasks.test {
+    useJUnit()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}

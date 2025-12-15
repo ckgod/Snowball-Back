@@ -2,8 +2,15 @@ package com.ckgod
 
 import com.ckgod.database.DatabaseFactory
 import com.ckgod.database.auth.AuthTokenRepository
+import com.ckgod.database.trading.CsvPriceDataLoader
+import com.ckgod.database.trading.PriceDataRepositoryImpl
+import com.ckgod.domain.model.TradingStrategy
+import com.ckgod.domain.repository.PriceDataRepository
+import com.ckgod.domain.service.OrderGenerator
+import com.ckgod.domain.usecase.BacktestStrategyUseCase
 import com.ckgod.domain.usecase.GetAccountStatusUseCase
 import com.ckgod.domain.usecase.GetCurrentPriceUseCase
+import com.ckgod.domain.usecase.OrderGenerationResult
 import com.ckgod.kis.KisApiClient
 import com.ckgod.kis.auth.KisAuthService
 import com.ckgod.kis.config.KisConfig
@@ -23,7 +30,10 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import java.io.File
 
 fun main() {
     val server = embeddedServer(Netty, port = 8080, module = Application::module)
@@ -97,6 +107,32 @@ fun Application.module() {
     // ========== Domain Layer (Use Cases) ==========
     val getCurrentPriceUseCase = GetCurrentPriceUseCase(realStockRepository)
     val getAccountStatusUseCase = GetAccountStatusUseCase(realAccountRepository, mockAccountRepository)
+
+    val csvLoader = CsvPriceDataLoader()
+    val priceData = csvLoader.loadFromCsv("TQQQ", File("tqqq_sample.csv"))
+
+    runBlocking {
+        val priceRepository = PriceDataRepositoryImpl()
+        priceRepository.savePriceData(priceData)
+
+        val strategy = TradingStrategy.forTQQQ(
+            initialCapital = 20000.0,
+            divisions = 20
+        )
+
+        val backTestUseCase = BacktestStrategyUseCase(
+            priceDataRepository = priceRepository,
+            orderGenerator = OrderGenerator()
+        )
+
+        val result = backTestUseCase(
+            strategy = strategy,
+            startDate = java.time.LocalDate.of(2024, 1, 2),
+            endDate = java.time.LocalDate.of(2024, 3, 28)
+        )
+
+        println(result.toReport())
+    }
 
     // ========== Presentation Layer Setup ==========
     configureAuthPlugin(apiKey)
