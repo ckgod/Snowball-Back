@@ -8,7 +8,6 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(
-    userId: String,
     getCurrentPriceUseCase: GetCurrentPriceUseCase,
     getAccountStatusUseCase: GetAccountStatusUseCase,
     investmentStatusRepository: InvestmentStatusRepository,
@@ -17,7 +16,7 @@ fun Application.configureRouting(
     routing {
         route("/ckapi/v1") {
             // TODO api endpoint url 여기서 관리하도록 변경
-            currentPriceRoutes(userId, getCurrentPriceUseCase)
+            currentPriceRoutes(getCurrentPriceUseCase)
             accountRoutes(getAccountStatusUseCase)
             mainStatusRoute(investmentStatusRepository)
             historyRoutes(tradeHistoryRepository)

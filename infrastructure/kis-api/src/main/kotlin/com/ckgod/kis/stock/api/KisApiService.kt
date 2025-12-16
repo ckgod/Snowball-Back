@@ -8,13 +8,16 @@ import com.ckgod.kis.stock.response.KisPriceResponse
 class KisApiService(private val apiClient: KisApiClient) {
 
     suspend fun getMarketCurrentPrice(
-        userId: String,
-        stockCode: String,
-        exchange: String
+        stockCode: String
     ): KisPriceResponse {
         val spec = KisApiSpec.QuotationPriceDetail
+        val exchange = when(stockCode) {
+            "TQQQ" -> "NAS"
+            "SOXL" -> "AMS"
+            else -> "NAS"
+        }
         val queryParams = spec.buildQuery(
-            userId = userId,
+            userId = apiClient.config.userId,
             exchange = exchange,
             stockCode = stockCode
         )

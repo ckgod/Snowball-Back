@@ -77,7 +77,6 @@ fun Application.simpleModule() {
 
     // ========== Security ==========
     val apiKey = config.property("api.key").getString()
-    val userId = config.property("kis.userId").getString()
     val maxRequests = config.property("api.rateLimit.maxRequests").getString().toInt()
     val windowSeconds = config.property("api.rateLimit.windowSeconds").getString().toLong()
 
@@ -89,6 +88,7 @@ fun Application.simpleModule() {
         appSecret = config.property("kis.real.appSecret").getString().trim(),
         accountNo = config.property("kis.real.accountNo").getString().trim(),
         accountCode = config.property("kis.real.accountCode").getString().trim(),
+        userId = config.property("kis.userId").getString().trim()
     )
 
     // ========== Repositories ==========
@@ -136,7 +136,6 @@ fun Application.simpleModule() {
 
     // ========== API Routing ==========
     configureRouting(
-        userId = userId,
         getCurrentPriceUseCase = getCurrentPriceUseCase,
         getAccountStatusUseCase = getAccountStatusUseCase,
         investmentStatusRepository = investmentStatusRepository,

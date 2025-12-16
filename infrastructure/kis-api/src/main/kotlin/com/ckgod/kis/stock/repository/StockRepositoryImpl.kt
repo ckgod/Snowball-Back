@@ -6,10 +6,8 @@ import com.ckgod.kis.stock.api.KisApiService
 
 class StockRepositoryImpl(private val kisApiService: KisApiService) : StockRepository {
 
-    override suspend fun getStockPrice(userId: String, exchange: String, stockCode: String): MarketPrice? {
+    override suspend fun getCurrentPrice(stockCode: String): MarketPrice? {
         val kisData = kisApiService.getMarketCurrentPrice(
-            userId = userId,
-            exchange = exchange,
             stockCode= stockCode
         )
 

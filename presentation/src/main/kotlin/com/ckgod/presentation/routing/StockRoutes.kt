@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
  * GET /ckapi/price?exchange=NAS&code=TQQQ
  */
 fun Route.currentPriceRoutes(
-    userId: String,
     getCurrentPriceUseCase: GetCurrentPriceUseCase
 ) {
     get("/price") {
@@ -19,14 +18,8 @@ fun Route.currentPriceRoutes(
                 mapOf("error" to "종목 코드가 필요합니다")
             )
 
-        val exchange = call.request.queryParameters["exchange"]
-            ?: return@get call.respond(
-                HttpStatusCode.BadRequest,
-                mapOf("error" to "거래소코드가 필요합니다.")
-            )
-
         try {
-            val marketPrice = getCurrentPriceUseCase(userId, exchange, code)
+            val marketPrice = getCurrentPriceUseCase(code)
                 ?: return@get call.respond(
                     HttpStatusCode.NotFound,
                     mapOf("error" to "존재하지 않는 종목 코드입니다")

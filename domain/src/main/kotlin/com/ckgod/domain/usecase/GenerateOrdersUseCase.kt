@@ -3,6 +3,7 @@ package com.ckgod.domain.usecase
 import com.ckgod.domain.model.InvestmentStatus
 import com.ckgod.domain.repository.InvestmentStatusRepository
 import com.ckgod.domain.repository.StockRepository
+import io.ktor.utils.io.CancellationException
 
 /**
  * 주문 생성 UseCase
@@ -48,7 +49,9 @@ class GenerateOrdersUseCase(
         val currentStatus = investmentStatusRepository.get(ticker) ?: return null
 
         // 2. 한투 API - 현재가 조회
-        val marketPrice = stockRepository.getCurrentPrice(ticker)
+        val marketPrice = stockRepository.getCurrentPrice(stockCode = ticker)
+            ?: throw CancellationException("종목 정보가 확인되지 않습니다.")
+
         val currentPrice = marketPrice.price.toDoubleOrNull() ?: 0.0
 
         // 3. 주문 가격 계산

@@ -6,11 +6,9 @@ import com.ckgod.domain.repository.StockRepository
 class GetCurrentPriceUseCase(
     private val repository: StockRepository,
 ) {
-    suspend operator fun invoke(userId: String, exchange: String, stockCode: String): MarketPrice? {
-        return repository.getStockPrice(
-            userId = userId,
-            stockCode = stockCode,
-            exchange = exchange
+    suspend operator fun invoke(stockCode: String): MarketPrice? {
+        return repository.getCurrentPrice(
+            stockCode = stockCode
         )
     }
 }
