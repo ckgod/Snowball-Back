@@ -27,7 +27,6 @@ class InvestmentStatusRepositoryImpl : InvestmentStatusRepository {
     override suspend fun save(status: InvestmentStatus): InvestmentStatus = transaction {
         InvestmentStatusTable.upsert {
             it[ticker] = status.ticker
-            it[currentT] = status.currentT
             it[totalInvested] = status.totalInvested
             it[oneTimeAmount] = status.oneTimeAmount
             it[avgPrice] = status.avgPrice
@@ -42,7 +41,6 @@ class InvestmentStatusRepositoryImpl : InvestmentStatusRepository {
     private fun org.jetbrains.exposed.v1.core.ResultRow.toInvestmentStatus(): InvestmentStatus {
         return InvestmentStatus(
             ticker = this[InvestmentStatusTable.ticker],
-            currentT = this[InvestmentStatusTable.currentT],
             totalInvested = this[InvestmentStatusTable.totalInvested],
             oneTimeAmount = this[InvestmentStatusTable.oneTimeAmount],
             avgPrice = this[InvestmentStatusTable.avgPrice],
