@@ -15,10 +15,7 @@ interface AccountRepository {
     }
 
     /**
-     * 일일 수익 조회 (간단 구현 - 현재는 0 리턴)
+     * 일일 수익 조회
      */
-    suspend fun getDailyProfit(ticker: String): Double {
-        // TODO: 실제 구현 필요
-        return 0.0
-    }
+    suspend fun getDailyProfit(ticker: String): Double
 }

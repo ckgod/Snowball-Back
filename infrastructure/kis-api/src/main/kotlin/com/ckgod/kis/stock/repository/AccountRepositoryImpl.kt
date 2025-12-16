@@ -12,4 +12,10 @@ class AccountRepositoryImpl(
 
         return response.toDomain()
     }
+
+    override suspend fun getDailyProfit(ticker: String): Double {
+        return kisApiService.getRecentDayProfit().details?.find {
+            it.ticker == ticker
+        }?.realizedProfitAmount?.toDouble() ?: 0.0
+    }
 }

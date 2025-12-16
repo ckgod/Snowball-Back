@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class KisDateProfitResponse(
     @SerialName("rt_cd") val returnCode: String,
     @SerialName("msg1") val message: String,
-    @SerialName("output1") val holdings: List<KisProfitDetail>?,
+    @SerialName("output1") val details: List<KisProfitDetail>?,
 )
 
 @Serializable
