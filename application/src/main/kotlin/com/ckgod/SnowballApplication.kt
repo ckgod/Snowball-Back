@@ -119,6 +119,7 @@ fun Application.simpleModule() {
 
     val generateOrdersUseCase = GenerateOrdersUseCase(
         stockRepository = stockRepository,
+        accountRepository = accountRepository,
         investmentStatusRepository = investmentStatusRepository
     )
 

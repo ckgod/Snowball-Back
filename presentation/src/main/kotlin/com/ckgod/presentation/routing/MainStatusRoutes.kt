@@ -34,7 +34,7 @@ fun Route.mainStatusRoute(
                 HttpStatusCode.OK,
                 StatusResponse(
                     ticker = status.ticker,
-                    currentT = status.currentT,
+                    currentT = status.tValue,
                     targetRate = status.targetRate,
                     avgPrice = status.avgPrice,
                     buyLocPrice = status.buyLocPrice,
@@ -62,7 +62,7 @@ fun Route.mainStatusRoute(
                     "statuses" to allStatuses.map { status ->
                         StatusResponse(
                             ticker = status.ticker,
-                            currentT = status.currentT,
+                            currentT = status.tValue,
                             targetRate = status.targetRate,
                             avgPrice = status.avgPrice,
                             buyLocPrice = status.buyLocPrice,

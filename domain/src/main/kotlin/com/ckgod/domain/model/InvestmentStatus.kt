@@ -61,6 +61,19 @@ data class InvestmentStatus(
     val starPercent: Double
         get() = targetRate * (1.0 - (2.0 * tValue / division))
 
+    val phase: TradePhase
+        get() = when {
+            tValue <= (division / 2).toDouble() -> TradePhase.FRONT_HALF
+            tValue < (division - 1).toDouble() -> TradePhase.BACK_HALF
+            tValue < division.toDouble() -> TradePhase.QUARTER_MODE
+            else -> TradePhase.EXHAUSTED
+        }
+
+    val exchange: Exchange get() = when(ticker) {
+        "TQQQ" -> Exchange.NASD
+        "SOXL" -> Exchange.AMEX
+        else -> Exchange.NASD
+    }
 
     fun updateFromAccount(
         totalInvested: Double,
@@ -93,4 +106,11 @@ data class InvestmentStatus(
             updatedAt = LocalDateTime.now().toString()
         )
     }
+}
+
+enum class TradePhase(val description: String) {
+    FRONT_HALF("전반전"),
+    BACK_HALF("후반전"),
+    QUARTER_MODE("쿼터모드"),
+    EXHAUSTED("자금소진")
 }

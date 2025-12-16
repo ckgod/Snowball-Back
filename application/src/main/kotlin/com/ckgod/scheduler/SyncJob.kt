@@ -34,9 +34,9 @@ class SyncJob(
                 results.forEach { result ->
                     logger.info("""
                         [${result.ticker}] 정산 완료:
-                          - T값: ${result.before.currentT} → ${result.after.currentT}
+                          - T값: ${result.before.tValue} → ${result.after.tValue}
                           - 1회매수금: ${result.before.oneTimeAmount} → ${result.after.oneTimeAmount}
-                          - 별%: ${result.after.targetRate}%
+                          - 별%: ${result.after.starPercent}%
                           - 평단가: ${result.after.avgPrice}
                           - 일일수익: ${result.dailyProfit}
                     """.trimIndent())

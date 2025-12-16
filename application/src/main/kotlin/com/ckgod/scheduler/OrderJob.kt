@@ -22,7 +22,6 @@ class OrderJob(
 
         runBlocking {
             try {
-                // UseCase 호출 (ticker=null → 전체 종목)
                 val results = generateOrdersUseCase(ticker = null)
 
                 if (results.isEmpty()) {
@@ -32,23 +31,23 @@ class OrderJob(
 
                 logger.info("투자 중인 종목: ${results.size}개")
 
-                // 결과 로깅 및 주문 전송
                 results.forEach { result ->
                     logger.info("""
-                        [${result.ticker}] 주문 가격 계산:
-                          - 현재가: $${result.currentPrice}
-                          - 매수: ${result.buyQuantity}주 @$${"%.2f".format(result.buyPrice)}
-                          - 매도: @$${"%.2f".format(result.sellPrice)}
-                          - 별%: ${result.targetRate}%
+                        [${result.ticker}] 주문 생성:
+                          - 현재가: $${"%.2f".format(result.currentPrice)}
+                          - 매수 주문: ${result.buyOrders.size}개
+                          - 매도 주문: ${result.sellOrders.size}개
                     """.trimIndent())
 
-                    // TODO: 실제 한투 API 주문 전송
-                    if (result.buyQuantity > 0) {
-                        logger.info("[${result.ticker}] 매수 주문 전송 완료 (로그만)")
+                    // 매수 주문 로깅
+                    result.buyOrders.forEach { order ->
+                        logger.info("  [BUY] ${order.type.name} ${order.quantity}주 @$${"%.2f".format(order.price)}")
                     }
 
-                    if (result.sellPrice > 0) {
-                        logger.info("[${result.ticker}] 매도 주문 전송 완료 (로그만)")
+                    // 매도 주문 로깅
+                    result.sellOrders.forEach { order ->
+                        val priceStr = if (order.type.name == "MOC") "MOC" else "$${"%.2f".format(order.price)}"
+                        logger.info("  [SELL] ${order.type.name} ${order.quantity}주 @${priceStr}")
                     }
                 }
 
