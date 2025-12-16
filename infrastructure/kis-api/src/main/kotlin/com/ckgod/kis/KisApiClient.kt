@@ -8,8 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
 
 class KisApiClient(
     val config: KisConfig,
@@ -20,10 +18,10 @@ class KisApiClient(
         ignoreUnknownKeys = true
     }
 
-    internal suspend inline fun <reified T> request(
+    internal suspend inline fun <reified T, reified Body> request(
         spec: KisApiSpec,
         queryParams: Map<String, String> = emptyMap(),
-        bodyParams: Map<String, String> = emptyMap()
+        bodyParams: Body? = null
     ): T {
         val token = authService.getAccessToken()
         val url = "${config.baseUrl}${spec.path}"
@@ -45,39 +43,6 @@ class KisApiClient(
         return json.decodeFromString<T>(response.bodyAsText())
     }
 
-    suspend fun get(
-        path: String,
-        trId: String,
-        configure: HttpRequestBuilder.() -> Unit = {}
-    ): JsonObject {
-        val token = authService.getAccessToken()
-
-        val response = client.get("${config.baseUrl}$path") {
-            headers { applyKisHeaders(token, trId) }
-            configure()
-        }
-
-        return parseResponse(response)
-    }
-
-    suspend fun post(
-        path: String,
-        trId: String,
-        body: Map<String, String> = emptyMap(),
-        configure: HttpRequestBuilder.() -> Unit = {}
-    ): JsonObject {
-        val token = authService.getAccessToken()
-
-        val response = client.post("${config.baseUrl}$path") {
-            headers { applyKisHeaders(token, trId) }
-            contentType(ContentType.Application.Json)
-            setBody(body)
-            configure()
-        }
-
-        return parseResponse(response)
-    }
-
     private fun HeadersBuilder.applyKisHeaders(token: String, trId: String) {
         append("content-type", "application/json; charset=utf-8")
         append("authorization", "Bearer $token")
@@ -85,10 +50,6 @@ class KisApiClient(
         append("appsecret", config.appSecret)
         append("custtype", "P")
         append("tr_id", trId)
-    }
-
-    private suspend fun parseResponse(response: HttpResponse): JsonObject {
-        return Json.parseToJsonElement(response.bodyAsText()).jsonObject
     }
 }
 

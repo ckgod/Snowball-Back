@@ -86,4 +86,20 @@ sealed class KisApiSpec(
         )
     }
 
+    data object BuyOrder : KisApiSpec(
+        method = HttpMethod.Post,
+        path = "/uapi/overseas-stock/v1/trading/order",
+        realTrId = "TTTT1002U",
+        mockTrId = "VTTT1002U",
+        description = "해외주식 매수 주문"
+    )
+
+    data object SellOrder : KisApiSpec(
+        method = HttpMethod.Post,
+        path = "/uapi/overseas-stock/v1/trading/order",
+        realTrId = "TTTT1006U",
+        mockTrId = "VTTT1001U",
+        description = "해외주식 매도 주문"
+    )
+
 }
