@@ -37,7 +37,7 @@ lateinit var simpleScheduler: SchedulerService
  *
  * 핵심 구조:
  * - 2개 테이블: investment_status, trade_history
- * - 2개 스케줄러: 오전 10시 정산, 오후 6시 주문
+ * - 2개 스케줄러: 오전 7시 정산, 오후 6시 주문
  * - 2개 API: GET /status, GET /history
  */
 fun main() {
