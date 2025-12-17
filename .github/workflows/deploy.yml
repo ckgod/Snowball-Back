@@ -49,4 +49,10 @@ jobs:
             
             sudo docker build -t trading-bot .
             
-            sudo docker run -d --name my-bot -p 80:8080 --env-file .env --restart always trading-bot
+            sudo docker run -d \
+              --name my-bot \
+              -p 80:8080 \
+              --env-file .env \
+              -v /home/ec2-user/app/database:/app/database \
+              --restart always \
+              trading-bot
