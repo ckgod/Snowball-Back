@@ -20,7 +20,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x gradlew
-          ./gradlew shadowJar
+          ./gradlew :application:shadowJar -x test
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@master
@@ -28,7 +28,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          source: "build/libs/*-all.jar, Dockerfile"
+          source: "application/build/libs/*-all.jar,Dockerfile"
           target: "/home/${{ secrets.USERNAME }}/app"
           strip_components: 0
 
@@ -40,7 +40,7 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             cd ~/app
-            mv build/libs/*-all.jar app.jar
+            mv application/build/libs/*-all.jar app.jar
             
             sudo docker stop my-bot || true
             sudo docker rm my-bot || true
