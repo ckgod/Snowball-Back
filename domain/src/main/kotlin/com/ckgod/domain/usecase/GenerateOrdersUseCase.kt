@@ -6,6 +6,9 @@ import com.ckgod.domain.repository.InvestmentStatusRepository
 import com.ckgod.domain.repository.StockRepository
 import com.ckgod.domain.repository.TradeHistoryRepository
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * 주문 생성 UseCase
@@ -102,6 +105,9 @@ class GenerateOrdersUseCase(
 
         // 주문 내역 DB 저장
         orderResponses.forEach { response ->
+            val orderDateTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+                .format(DateTimeFormatter.ofPattern("yyMMdd"))
+
             val history = TradeHistory(
                 ticker = ticker,
                 orderNo = response.orderNo,
@@ -109,7 +115,7 @@ class GenerateOrdersUseCase(
                 orderType = response.request.type,
                 orderPrice = response.request.price,
                 orderQuantity = response.request.quantity,
-                orderTime = response.orderTime,
+                orderTime = orderDateTime,
                 status = OrderStatus.PENDING,
                 tValue = currentStatus.tValue
             )
