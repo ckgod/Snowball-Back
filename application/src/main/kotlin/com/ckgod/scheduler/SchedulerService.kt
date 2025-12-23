@@ -42,7 +42,7 @@ class SchedulerService(
         scheduler.start()
         logger.info("스케줄러 시작 완료")
         logger.info("  - 정산: 매일 오전 7시 (Asia/Seoul)")
-        logger.info("  - 주문: 매일 오후 6시 (Asia/Seoul)")
+        logger.info("  - 주문: 매일 오후 6시 5분 (Asia/Seoul)")
     }
 
     private fun scheduleSyncJob() {
@@ -69,7 +69,7 @@ class SchedulerService(
         val trigger = TriggerBuilder.newTrigger()
             .withIdentity("orderTrigger", "trading")
             .withSchedule(
-                CronScheduleBuilder.cronSchedule("0 0 18 ? * MON-FRI")
+                CronScheduleBuilder.cronSchedule("0 5 18 ? * MON-FRI")
                     .inTimeZone(java.util.TimeZone.getTimeZone("Asia/Seoul"))
             )
             .build()

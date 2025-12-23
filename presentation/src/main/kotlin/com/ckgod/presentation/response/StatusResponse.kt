@@ -2,7 +2,7 @@ package com.ckgod.presentation.response
 
 import com.ckgod.domain.model.InvestmentStatus
 import kotlinx.serialization.Serializable
-import kotlin.math.round
+import kotlin.math.floor
 
 @Serializable
 data class StatusResponse(
@@ -27,7 +27,10 @@ data class StatusResponse(
 
     // 환율
     val exchangeRate: Double?,              // 환율
-    val capital: Double?                   // 원금
+    val capital: Double?,                   // 원금
+    val nextSellStarPrice: Double?,         // 다음 별% 매도 가격
+    val nextSellTargetPrice: Double?,       // 다음 지정가% 매도 가격
+    val nextBuyStarPrice: Double?,          // 다음 별% 매수 가격
 ) {
     companion object {
         fun from(
@@ -42,10 +45,13 @@ data class StatusResponse(
                 0.0
             }
 
-            // 소수점 둘째자리로 반올림
-            val profitRate = round(rawProfitRate * 100) / 100.0
-            val starPercent = round(status.starPercent * 100) / 100.0
-            val profitAmount = status.quantity * (currentPrice - status.avgPrice)
+            val starSellPrice = floor(status.avgPrice * (1.0 + status.starPercent / 100.0) * 100) / 100.0
+            val targetSellPrice = floor(status.avgPrice * (1.0 + status.targetRate / 100.0) * 100) / 100.0
+            val starBuyPrice = floor(currentPrice * (1.0 + status.starPercent / 100.0) * 100) / 100.0
+
+            val profitRate = floor(rawProfitRate * 100) / 100.0
+            val starPercent = floor(status.starPercent * 100) / 100.0
+            val profitAmount = floor(status.quantity * (currentPrice - status.avgPrice) * 100) / 100.0
 
             return StatusResponse(
                 ticker = status.ticker,
@@ -63,7 +69,10 @@ data class StatusResponse(
                 oneTimeAmount = status.oneTimeAmount,
                 totalInvested = status.totalInvested,
                 exchangeRate = exchangeRate,
-                capital = status.initialCapital
+                capital = status.initialCapital,
+                nextSellStarPrice = starSellPrice,
+                nextSellTargetPrice = targetSellPrice,
+                nextBuyStarPrice = starBuyPrice
             )
         }
     }
