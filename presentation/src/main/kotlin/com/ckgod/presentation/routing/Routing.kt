@@ -23,11 +23,15 @@ fun Application.configureRouting(
             get("/account/status") {
                 accountRoutes(getAccountStatusUseCase)
             }
-            get("/price") {
-                currentPriceRoutes(getCurrentPriceUseCase)
+            get("/stock/price") {
+                stockPriceRoutes(getCurrentPriceUseCase)
             }
-            get("/history") {
-                historyRoutes(tradeHistoryRepository)
+            get("/stock/detail") {
+                stockDetailRoutes(
+                    tradeHistoryRepository,
+                    investmentStatusRepository,
+                    stockRepository
+                )
             }
         }
     }

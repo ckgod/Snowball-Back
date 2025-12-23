@@ -11,12 +11,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-/**
- * GET /api/v1/status?ticker=TQQQ
- * GET /api/v1/status (모든 종목)
- *
- * 앱 메인 화면용: 현재 T값, 별%, 주문 가격 등
- */
 suspend fun RoutingContext.mainStatusRoute(
     investmentStatusRepository: InvestmentStatusRepository,
     stockRepository: StockRepository

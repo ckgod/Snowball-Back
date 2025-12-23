@@ -5,10 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-/**
- * GET /ckapi/price?exchange=NAS&code=TQQQ
- */
-suspend fun RoutingContext.currentPriceRoutes(
+suspend fun RoutingContext.stockPriceRoutes(
     getCurrentPriceUseCase: GetCurrentPriceUseCase
 ) {
     val code = call.request.queryParameters["code"]

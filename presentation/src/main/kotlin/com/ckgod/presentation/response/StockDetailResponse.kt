@@ -3,8 +3,8 @@ package com.ckgod.presentation.response
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class HistoryResponse(
-    val total: Int,
+data class StockDetailResponse(
+    val status: StatusResponse?,
     val histories: List<HistoryItem>
 )
 

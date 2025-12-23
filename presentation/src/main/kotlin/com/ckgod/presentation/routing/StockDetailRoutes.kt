@@ -1,37 +1,49 @@
 package com.ckgod.presentation.routing
 
+import com.ckgod.domain.repository.InvestmentStatusRepository
+import com.ckgod.domain.repository.StockRepository
 import com.ckgod.domain.repository.TradeHistoryRepository
 import com.ckgod.presentation.response.HistoryItem
-import com.ckgod.presentation.response.HistoryResponse
+import com.ckgod.presentation.response.StatusResponse
+import com.ckgod.presentation.response.StockDetailResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.get
 import kotlin.text.toIntOrNull
 
-
-/**
- * GET /api/v1/history
- *
- * 앱 히스토리 화면용: 과거 거래 내역 (페이징)
- */
-suspend fun RoutingContext.historyRoutes(
-    tradeHistoryRepository: TradeHistoryRepository
+suspend fun RoutingContext.stockDetailRoutes(
+    tradeHistoryRepository: TradeHistoryRepository,
+    investmentStateRepository: InvestmentStatusRepository,
+    stockRepository: StockRepository,
 ) {
     val ticker = call.request.queryParameters["ticker"]
     val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 100
 
-    val histories = if (ticker != null) {
-        tradeHistoryRepository.findByTicker(ticker, limit)
-    } else {
-        tradeHistoryRepository.findAll(limit)
+    if (ticker == null) {
+        call.respond(
+            HttpStatusCode.BadRequest,
+            mapOf("error" to "ticker 정보가 없습니다.")
+        )
+        return
+    }
+    val histories = tradeHistoryRepository.findByTicker(ticker, limit)
+    val status = investmentStateRepository.get(ticker)?.let {
+        val marketPrice = stockRepository.getCurrentPrice(ticker)
+        val currentPrice = marketPrice?.price?.toDoubleOrNull() ?: 0.0
+        val dailyChangeRate = marketPrice?.changeRate?.toDoubleOrNull() ?: 0.0
+
+        StatusResponse.from(
+            status = it,
+            currentPrice = currentPrice,
+            dailyChangeRate = dailyChangeRate,
+            exchangeRate = marketPrice?.exchangeRate?.toDoubleOrNull()
+        )
     }
 
     call.respond(
         HttpStatusCode.OK,
-        HistoryResponse(
-            total = histories.size,
+        StockDetailResponse(
+            status = status,
             histories = histories.map { history ->
                 HistoryItem(
                     id = history.id,
