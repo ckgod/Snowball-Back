@@ -35,9 +35,8 @@ class InvestmentStatusRepositoryImpl : InvestmentStatusRepository {
             it[avgPrice] = status.avgPrice
             it[quantity] = status.quantity
             it[targetRate] = status.targetRate
-            it[buyLocPrice] = status.buyLocPrice
-            it[sellLocPrice] = status.sellLocPrice
             it[updatedAt] = status.updatedAt
+            it[realizedTotalProfit] = status.realizedTotalProfit
         }
         status
     }
@@ -53,9 +52,8 @@ class InvestmentStatusRepositoryImpl : InvestmentStatusRepository {
             avgPrice = this[InvestmentStatusTable.avgPrice],
             quantity = this[InvestmentStatusTable.quantity],
             targetRate = this[InvestmentStatusTable.targetRate],
-            buyLocPrice = this[InvestmentStatusTable.buyLocPrice],
-            sellLocPrice = this[InvestmentStatusTable.sellLocPrice],
-            updatedAt = this[InvestmentStatusTable.updatedAt]
+            updatedAt = this[InvestmentStatusTable.updatedAt],
+            realizedTotalProfit = this[InvestmentStatusTable.realizedTotalProfit],
         )
     }
 }
